@@ -2,6 +2,12 @@
 
 All notable changes to Slash Saver are documented here.
 
+## 1.0.1 - 2026-07-22
+
+- Replaced the coral icon with a calmer emerald and lime identity.
+- Reworked settings into a compact native preference panel with clearer hierarchy and aligned controls.
+- Expanded the product story around chat, search, code, and vibe-coding input transitions.
+
 ## 1.0.0 - 2026-07-22
 
 - Added passive HID-level monitoring for the physical ANSI slash key.

@@ -20,6 +20,12 @@ Slash Saver listens for one physical key and performs one action: when the ANSI 
 
 It never switches back automatically, records typed characters, inspects the active application, or posts synthetic keyboard events.
 
+## Why Slash
+
+Chinese input users constantly move among chat, English search, code, and vibe coding. In those transitions, `/` may become the Chinese enumeration comma `、`; or the slash appears while the letters after it are still captured as pinyin. When invoking a command or skill, Return can commit that composition and add unwanted text, reducing command matches.
+
+Traditional input-source switchers usually assign a source to an entire app. That is too coarse when focus moves rapidly between chat, search, editors, and agent prompts. Slash Saver uses the smallest trigger that identifies the intent: a physical slash means select the chosen ASCII source, then leave everything else alone.
+
 ## Download
 
 Download the latest universal macOS build from [GitHub Releases](https://github.com/nxxxsooo/slash-saver/releases/latest).
@@ -92,6 +98,10 @@ Open `SlashSaver.xcodeproj` in Xcode for local development. Debug builds use a s
 ## 中文说明
 
 Slash Saver 是一个极小的原生 macOS 工具。按下物理 `/` 键时，它会在按键进入当前应用前切换到你选定的 ASCII 输入源，同时原始按键继续正常输入 `/` 或 `?`。
+
+中文输入者经常在日常聊天、英文检索、代码输入和 vibe coding 之间切换。此时 `/` 可能变成中文顿号 `、`；也可能斜杠已经出现，后面的英文仍被当成拼音。调用 command 或 skill 后按回车，还可能先提交多余的输入法组合文本，直接影响命中。
+
+传统输入法切换器通常按整个应用绑定输入源，但聊天、搜索、编辑器和 Agent 输入框之间频繁换焦点时，这种粒度太粗，反而打断心流。Slash Saver 只采用能明确表达意图的最小触发：一旦按下物理斜杠键，就切到选定的 ASCII 输入源，其余场景完全不管。
 
 首次运行时，从系统当前启用的输入源列表里选择目标输入源，并授予「输入监控」权限。它没有 Dock 图标和菜单栏图标；再次打开应用即可进入设置。
 

@@ -10,8 +10,8 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     private let sourcePopup = NSPopUpButton(frame: .zero, pullsDown: false)
     private let permissionImage = NSImageView()
     private let permissionLabel = NSTextField(labelWithString: "")
-    private let permissionButton = NSButton(title: "授予权限", target: nil, action: nil)
-    private let loginCheckbox = NSButton(checkboxWithTitle: "登录时启动", target: nil, action: nil)
+    private let permissionButton = NSButton(title: "授权", target: nil, action: nil)
+    private let loginSwitch = NSSwitch()
     private let loginStatusLabel = NSTextField(labelWithString: "")
     private let errorLabel = NSTextField(wrappingLabelWithString: "")
     private var permissionTimer: Timer?
@@ -29,12 +29,15 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         self.monitor = monitor
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 326),
-            styleMask: [.titled, .closable, .miniaturizable],
+            contentRect: NSRect(x: 0, y: 0, width: 540, height: 360),
+            styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
         )
-        window.title = "Slash Saver 设置"
+        window.title = "Slash Saver"
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
         window.isReleasedWhenClosed = false
         window.center()
         super.init(window: window)
@@ -67,75 +70,160 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     private func buildContent() {
         guard let contentView = window?.contentView else { return }
 
+        let iconView = NSImageView(image: NSApp.applicationIconImage)
+        iconView.imageScaling = .scaleProportionallyUpOrDown
+        iconView.setContentHuggingPriority(.required, for: .horizontal)
+        NSLayoutConstraint.activate([
+            iconView.widthAnchor.constraint(equalToConstant: 48),
+            iconView.heightAnchor.constraint(equalToConstant: 48),
+        ])
+
         let title = NSTextField(labelWithString: "Slash Saver")
-        title.font = .systemFont(ofSize: 22, weight: .semibold)
+        title.font = .systemFont(ofSize: 20, weight: .semibold)
+        let subtitle = NSTextField(labelWithString: "斜杠键触发的英文输入源")
+        subtitle.font = .systemFont(ofSize: 13)
+        subtitle.textColor = .secondaryLabelColor
 
-        let sourceLabel = NSTextField(labelWithString: "目标输入源")
-        sourceLabel.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
+        let headerText = NSStackView(views: [title, subtitle])
+        headerText.orientation = .vertical
+        headerText.alignment = .leading
+        headerText.spacing = 3
+
+        let header = NSStackView(views: [iconView, headerText])
+        header.orientation = .horizontal
+        header.alignment = .centerY
+        header.spacing = 14
+
+        sourcePopup.controlSize = .large
+        sourcePopup.setAccessibilityLabel("目标输入源")
         sourcePopup.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        sourcePopup.widthAnchor.constraint(equalToConstant: 260).isActive = true
+        let sourceRow = makeRow(
+            title: "目标输入源",
+            detail: "物理 / 键触发后使用",
+            control: sourcePopup
+        )
 
-        let sourceRow = NSStackView(views: [sourceLabel, sourcePopup])
-        sourceRow.orientation = .horizontal
-        sourceRow.alignment = .centerY
-        sourceRow.spacing = 16
-
-        permissionImage.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        permissionImage.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
         permissionImage.setContentHuggingPriority(.required, for: .horizontal)
+        permissionLabel.font = .systemFont(ofSize: 13, weight: .medium)
         permissionLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         permissionButton.target = self
         permissionButton.action = #selector(requestPermission)
+        permissionButton.setAccessibilityLabel("授予输入监控权限")
+        permissionButton.bezelStyle = .rounded
+        permissionButton.widthAnchor.constraint(equalToConstant: 86).isActive = true
 
-        let permissionRow = NSStackView(views: [permissionImage, permissionLabel, permissionButton])
-        permissionRow.orientation = .horizontal
-        permissionRow.alignment = .centerY
-        permissionRow.spacing = 8
+        let permissionControl = NSStackView(views: [permissionImage, permissionLabel, permissionButton])
+        permissionControl.orientation = .horizontal
+        permissionControl.alignment = .centerY
+        permissionControl.spacing = 8
+        permissionControl.widthAnchor.constraint(equalToConstant: 260).isActive = true
+        let permissionRow = makeRow(
+            title: "输入监控",
+            detail: "系统只读监听权限",
+            control: permissionControl
+        )
 
-        loginCheckbox.target = self
-        loginCheckbox.action = #selector(loginCheckboxChanged)
-
-        loginStatusLabel.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        loginSwitch.target = self
+        loginSwitch.action = #selector(loginSwitchChanged)
+        loginSwitch.setAccessibilityLabel("登录时启动")
+        loginStatusLabel.font = .systemFont(ofSize: 13)
         loginStatusLabel.textColor = .secondaryLabelColor
 
-        let loginRow = NSStackView(views: [loginCheckbox, loginStatusLabel])
-        loginRow.orientation = .horizontal
-        loginRow.alignment = .centerY
-        loginRow.spacing = 8
+        let loginSpacer = NSView()
+        loginSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let loginControl = NSStackView(views: [loginStatusLabel, loginSpacer, loginSwitch])
+        loginControl.orientation = .horizontal
+        loginControl.alignment = .centerY
+        loginControl.spacing = 8
+        loginControl.widthAnchor.constraint(equalToConstant: 260).isActive = true
+        let loginRow = makeRow(
+            title: "登录时启动",
+            detail: "后台静默保持可用",
+            control: loginControl
+        )
+
+        let settingsStack = NSStackView(views: [
+            sourceRow,
+            makeSeparator(),
+            permissionRow,
+            makeSeparator(),
+            loginRow,
+        ])
+        settingsStack.orientation = .vertical
+        settingsStack.alignment = .leading
+        settingsStack.spacing = 0
 
         errorLabel.textColor = .systemRed
-        errorLabel.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        errorLabel.font = .systemFont(ofSize: 12)
+        errorLabel.maximumNumberOfLines = 1
+        errorLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         errorLabel.isHidden = true
 
-        let quitButton = NSButton(title: "退出", target: NSApp, action: #selector(NSApplication.terminate(_:)))
-        let saveButton = NSButton(title: "保存", target: self, action: #selector(saveAndClose))
+        let quitButton = NSButton(title: "退出应用", target: NSApp, action: #selector(NSApplication.terminate(_:)))
+        quitButton.bezelStyle = .rounded
+        let saveButton = NSButton(title: "保存设置", target: self, action: #selector(saveAndClose))
         saveButton.keyEquivalent = "\r"
         saveButton.bezelStyle = .rounded
 
-        let spacer = NSView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let buttons = NSStackView(views: [quitButton, spacer, saveButton])
+        let buttonSpacer = NSView()
+        buttonSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let buttons = NSStackView(views: [quitButton, buttonSpacer, saveButton])
         buttons.orientation = .horizontal
         buttons.alignment = .centerY
         buttons.spacing = 8
 
-        let stack = NSStackView(views: [title, sourceRow, permissionRow, loginRow, errorLabel, buttons])
-        stack.orientation = .vertical
-        stack.alignment = .leading
-        stack.spacing = 18
-        stack.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 20, right: 24)
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(stack)
+        let root = NSStackView(views: [header, makeSeparator(), settingsStack, errorLabel, buttons])
+        root.orientation = .vertical
+        root.alignment = .leading
+        root.spacing = 0
+        root.setCustomSpacing(18, after: header)
+        root.setCustomSpacing(10, after: root.arrangedSubviews[1])
+        root.setCustomSpacing(8, after: settingsStack)
+        root.setCustomSpacing(8, after: errorLabel)
+        root.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(root)
 
-        sourceRow.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -48).isActive = true
-        permissionRow.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -48).isActive = true
-        buttons.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -48).isActive = true
+        for view in [header, root.arrangedSubviews[1], settingsStack, errorLabel, buttons] {
+            view.widthAnchor.constraint(equalTo: root.widthAnchor).isActive = true
+        }
 
         NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            stack.topAnchor.constraint(equalTo: contentView.topAnchor),
-            stack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            sourcePopup.widthAnchor.constraint(greaterThanOrEqualToConstant: 260),
+            root.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            root.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -28),
+            root.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 22),
+            root.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -18),
         ])
+    }
+
+    private func makeRow(title: String, detail: String, control: NSView) -> NSStackView {
+        let titleLabel = NSTextField(labelWithString: title)
+        titleLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        let detailLabel = NSTextField(labelWithString: detail)
+        detailLabel.font = .systemFont(ofSize: 11)
+        detailLabel.textColor = .tertiaryLabelColor
+
+        let labels = NSStackView(views: [titleLabel, detailLabel])
+        labels.orientation = .vertical
+        labels.alignment = .leading
+        labels.spacing = 2
+        labels.widthAnchor.constraint(equalToConstant: 176).isActive = true
+
+        let spacer = NSView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let row = NSStackView(views: [labels, spacer, control])
+        row.orientation = .horizontal
+        row.alignment = .centerY
+        row.spacing = 20
+        row.heightAnchor.constraint(equalToConstant: 58).isActive = true
+        return row
+    }
+
+    private func makeSeparator() -> NSBox {
+        let separator = NSBox()
+        separator.boxType = .separator
+        return separator
     }
 
     private func reload() {
@@ -151,7 +239,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         }
         sourcePopup.isEnabled = !sources.isEmpty
 
-        loginCheckbox.state = loginItem.isRegistered || preferences.targetInputSourceID == nil ? .on : .off
+        loginSwitch.state = loginItem.isRegistered || preferences.targetInputSourceID == nil ? .on : .off
         showError(nil)
         refreshLoginStatus()
         refreshPermissionStatus()
@@ -172,26 +260,25 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             accessibilityDescription: nil
         )
         permissionImage.contentTintColor = granted ? .systemGreen : .systemOrange
-        permissionLabel.stringValue = granted ? "输入监控已授权" : "需要输入监控权限"
-        permissionButton.title = granted ? "已授权" : "授予权限"
+        permissionLabel.stringValue = granted ? "已授权" : "需要授权"
+        permissionButton.title = granted ? "已授权" : "授权"
         permissionButton.isEnabled = !granted
-        if granted {
-            if !monitor.start(), monitor.state == .failed {
-                showError("无法启动按键监控。请退出 Slash Saver 后重试。")
-            }
+        permissionButton.isHidden = granted
+        if granted, !monitor.start(), monitor.state == .failed {
+            showError("无法启动按键监控。请退出 Slash Saver 后重试。")
         }
     }
 
     private func refreshLoginStatus() {
         switch loginItem.state {
         case .disabled:
-            loginStatusLabel.stringValue = ""
+            loginStatusLabel.stringValue = "关闭"
         case .enabled:
             loginStatusLabel.stringValue = "已启用"
         case .requiresApproval:
             loginStatusLabel.stringValue = "等待系统批准"
         case .unavailable:
-            loginStatusLabel.stringValue = "尚未注册"
+            loginStatusLabel.stringValue = "不可用"
         }
     }
 
@@ -200,16 +287,16 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         refreshPermissionStatus()
     }
 
-    @objc private func loginCheckboxChanged() {
+    @objc private func loginSwitchChanged() {
         do {
-            try loginItem.setEnabled(loginCheckbox.state == .on)
+            try loginItem.setEnabled(loginSwitch.state == .on)
             refreshLoginStatus()
             showError(nil)
             if loginItem.state == .requiresApproval {
                 loginItem.openSystemSettings()
             }
         } catch {
-            loginCheckbox.state = loginItem.isRegistered ? .on : .off
+            loginSwitch.state = loginItem.isRegistered ? .on : .off
             showError("无法更新登录启动：\(error.localizedDescription)")
         }
     }
@@ -222,7 +309,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         }
 
         do {
-            try loginItem.setEnabled(loginCheckbox.state == .on)
+            try loginItem.setEnabled(loginSwitch.state == .on)
             refreshLoginStatus()
         } catch {
             showError("无法更新登录启动：\(error.localizedDescription)")

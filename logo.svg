@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
   <title id="title">Slash Saver</title>
-  <desc id="desc">A white forward slash between graphite and mint input-state bars on a coral app icon.</desc>
-  <rect x="64" y="64" width="896" height="896" rx="218" fill="#F4474B"/>
-  <rect x="184" y="626" width="226" height="76" rx="24" fill="#252A2C"/>
-  <path d="M458 792 574 232h118L576 792Z" fill="#FFF9F4"/>
-  <rect x="664" y="322" width="214" height="76" rx="24" fill="#7FE1B2"/>
+  <desc id="desc">A two-tone forward slash changing from warm white to lime on a deep emerald app icon.</desc>
+  <rect x="64" y="64" width="896" height="896" rx="218" fill="#0B6E5F"/>
+  <path d="M316 804h140l92-298H408Z" fill="#F6F5EF"/>
+  <path d="M492 482h140l86-262H578Z" fill="#D9F26A"/>
 </svg>

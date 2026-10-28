@@ -11,6 +11,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     private let permissionImage = NSImageView()
     private let permissionLabel = NSTextField(labelWithString: "")
     private let permissionButton = NSButton(title: "授权", target: nil, action: nil)
+    private let escapeSwitch = NSSwitch()
     private let loginSwitch = NSSwitch()
     private let loginStatusLabel = NSTextField(labelWithString: "")
     private let errorLabel = NSTextField(wrappingLabelWithString: "")
@@ -29,7 +30,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         self.monitor = monitor
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 540, height: 360),
+            contentRect: NSRect(x: 0, y: 0, width: 540, height: 420),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -125,6 +126,19 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             control: permissionControl
         )
 
+        escapeSwitch.setAccessibilityLabel("Esc 键也切换")
+        let escapeSpacer = NSView()
+        escapeSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let escapeControl = NSStackView(views: [escapeSpacer, escapeSwitch])
+        escapeControl.orientation = .horizontal
+        escapeControl.alignment = .centerY
+        escapeControl.widthAnchor.constraint(equalToConstant: 260).isActive = true
+        let escapeRow = makeRow(
+            title: "Esc 键也切换",
+            detail: "离开输入后单键快捷键可用",
+            control: escapeControl
+        )
+
         loginSwitch.target = self
         loginSwitch.action = #selector(loginSwitchChanged)
         loginSwitch.setAccessibilityLabel("登录时启动")
@@ -146,6 +160,8 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
         let settingsStack = NSStackView(views: [
             sourceRow,
+            makeSeparator(),
+            escapeRow,
             makeSeparator(),
             permissionRow,
             makeSeparator(),
@@ -238,6 +254,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             sourcePopup.selectItem(at: 0)
         }
         sourcePopup.isEnabled = !sources.isEmpty
+        escapeSwitch.state = preferences.switchOnEscape ? .on : .off
 
         loginSwitch.state = loginItem.isRegistered || preferences.targetInputSourceID == nil ? .on : .off
         showError(nil)
@@ -317,6 +334,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         }
 
         preferences.targetInputSourceID = sources[selectedIndex].id
+        preferences.switchOnEscape = escapeSwitch.state == .on
         monitor.stop()
         guard monitor.start() else {
             switch monitor.state {

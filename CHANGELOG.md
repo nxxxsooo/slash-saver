@@ -2,6 +2,11 @@
 
 All notable changes to Slash Saver are documented here.
 
+## 1.1.0 - Unreleased
+
+- Added an optional Escape trigger (**Esc 键也切换**), off by default, for terminal and modal-editor shortcuts after leaving text entry.
+- Added `SlashSaver input-source current|ascii|select <id>` so terminal tools can switch to the configured ASCII source and restore the previous one.
+
 ## 1.0.1 - 2026-07-22
 
 - Replaced the coral icon with a calmer emerald and lime identity.

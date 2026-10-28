@@ -17,6 +17,7 @@
 		AA0000000000000000000008 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000008 /* main.swift */; };
 		AA0000000000000000000009 /* SlashKeyPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000009 /* SlashKeyPolicyTests.swift */; };
 		AA000000000000000000000A /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000000000000000000000B /* XCTest.framework */; };
+		AA000000000000000000000C /* InputSourceCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000000000000000000000F /* InputSourceCommand.swift */; };
 		AA000000000000000000000B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB000000000000000000000E /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,7 @@
 		BB000000000000000000000B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 		BB000000000000000000000C /* SlashSaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlashSaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB000000000000000000000D /* SlashSaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SlashSaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB000000000000000000000F /* InputSourceCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSourceCommand.swift; sourceTree = "<group>"; };
 		BB000000000000000000000E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -68,6 +70,7 @@
 			children = (
 				BB0000000000000000000001 /* AppDelegate.swift */,
 				BB0000000000000000000002 /* AppPreferences.swift */,
+				BB000000000000000000000F /* InputSourceCommand.swift */,
 				BB0000000000000000000003 /* InputSourceManager.swift */,
 				BB0000000000000000000004 /* LoginItemController.swift */,
 				BB0000000000000000000005 /* SettingsWindowController.swift */,
@@ -141,7 +144,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		330000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (AA0000000000000000000001, AA0000000000000000000002, AA0000000000000000000003, AA0000000000000000000004, AA0000000000000000000005, AA0000000000000000000006, AA0000000000000000000007, AA0000000000000000000008,); runOnlyForDeploymentPostprocessing = 0; };
+		330000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (AA0000000000000000000001, AA0000000000000000000002, AA0000000000000000000003, AA0000000000000000000004, AA0000000000000000000005, AA0000000000000000000006, AA0000000000000000000007, AA0000000000000000000008, AA000000000000000000000C,); runOnlyForDeploymentPostprocessing = 0; };
 		330000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (AA0000000000000000000009,); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 

@@ -86,6 +86,47 @@ final class SlashKeyPolicyTests: XCTestCase {
         XCTAssertTrue(inputSources.selectedIDs.isEmpty)
     }
 
+    func testEscapeSwitchesOnlyWhenEnabled() {
+        let escape = SlashKeyPolicy.escapeKeyCode
+        XCTAssertFalse(SlashKeyPolicy.shouldSwitch(keyCode: escape, flags: [], isRepeat: false))
+        XCTAssertTrue(SlashKeyPolicy.shouldSwitch(keyCode: escape, flags: [], isRepeat: false, switchOnEscape: true))
+        XCTAssertFalse(SlashKeyPolicy.shouldSwitch(keyCode: escape, flags: .maskCommand, isRepeat: false, switchOnEscape: true))
+        XCTAssertFalse(SlashKeyPolicy.shouldSwitch(keyCode: escape, flags: [], isRepeat: true, switchOnEscape: true))
+    }
+
+    func testMonitorSelectsOnEscapeWhenEnabled() throws {
+        let inputSources = InputSourceSelectingStub()
+        let monitor = SlashKeyMonitor(
+            inputSources: inputSources,
+            targetInputSourceID: { "com.apple.keylayout.US" },
+            switchOnEscape: { true }
+        )
+        XCTAssertTrue(monitor.prepareTargetInputSource())
+
+        let event = try XCTUnwrap(CGEvent(
+            keyboardEventSource: nil,
+            virtualKey: CGKeyCode(SlashKeyPolicy.escapeKeyCode),
+            keyDown: true
+        ))
+        _ = monitor.handle(type: .keyDown, event: event)
+
+        XCTAssertEqual(inputSources.selectedIDs, ["com.apple.keylayout.US"])
+    }
+
+    func testInputSourceCommandParsesOnlyItsOwnArguments() {
+        XCTAssertNil(InputSourceCommand.parse([]))
+        XCTAssertNil(InputSourceCommand.parse(["-NSDocumentRevisionsDebugMode", "YES"]))
+        XCTAssertEqual(InputSourceCommand.parse(["input-source", "current"]), .success(.current))
+        XCTAssertEqual(InputSourceCommand.parse(["input-source", "ascii"]), .success(.ascii))
+        XCTAssertEqual(
+            InputSourceCommand.parse(["input-source", "select", "com.apple.keylayout.US"]),
+            .success(.select("com.apple.keylayout.US"))
+        )
+        for bad in [["input-source"], ["input-source", "select"], ["input-source", "select", ""], ["input-source", "nope"]] {
+            XCTAssertEqual(InputSourceCommand.parse(bad), .failure(InputSourceCommand.UsageError()), "\(bad)")
+        }
+    }
+
     func testLaunchShowsSettingsWhenTargetIsMissingOrMonitorCannotStart() {
         XCTAssertTrue(LaunchPolicy.shouldShowSettings(hasValidTarget: false, monitorStarted: false))
         XCTAssertTrue(LaunchPolicy.shouldShowSettings(hasValidTarget: true, monitorStarted: false))

@@ -7,7 +7,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let loginItem = LoginItemController()
     private lazy var monitor = SlashKeyMonitor(
         inputSources: inputSources,
-        targetInputSourceID: { [weak preferences] in preferences?.targetInputSourceID }
+        targetInputSourceID: { [weak preferences] in preferences?.targetInputSourceID },
+        switchOnEscape: { [weak preferences] in preferences?.switchOnEscape ?? false }
     )
     private lazy var settingsWindow = SettingsWindowController(
         preferences: preferences,

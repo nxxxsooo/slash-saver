@@ -12,6 +12,7 @@ final class SlashKeyMonitor {
 
     private let inputSources: InputSourceSelecting
     private let targetInputSourceID: () -> String?
+    private let switchOnEscape: () -> Bool
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SlashSaver", category: "Keyboard")
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
@@ -28,10 +29,12 @@ final class SlashKeyMonitor {
 
     init(
         inputSources: InputSourceSelecting,
-        targetInputSourceID: @escaping () -> String?
+        targetInputSourceID: @escaping () -> String?,
+        switchOnEscape: @escaping () -> Bool = { false }
     ) {
         self.inputSources = inputSources
         self.targetInputSourceID = targetInputSourceID
+        self.switchOnEscape = switchOnEscape
     }
 
     deinit {
@@ -131,7 +134,8 @@ final class SlashKeyMonitor {
         guard SlashKeyPolicy.shouldSwitch(
             keyCode: keyCode,
             flags: event.flags,
-            isRepeat: isRepeat
+            isRepeat: isRepeat,
+            switchOnEscape: switchOnEscape()
         ) else {
             return Unmanaged.passUnretained(event)
         }

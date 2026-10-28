@@ -84,6 +84,23 @@ final class InputSourceManager: InputSourceSelecting {
         preparedInputSource = nil
     }
 
+    /// Selects any enabled keyboard input source, ASCII or not, so a caller can restore the
+    /// source it switched away from.
+    @discardableResult
+    func selectInputSource(id targetID: String) -> Bool {
+        guard currentInputSourceID() != targetID else {
+            return true
+        }
+        guard let source = allKeyboardSources().first(where: {
+            stringProperty(kTISPropertyInputSourceID, of: $0) == targetID
+                && booleanProperty(kTISPropertyInputSourceIsEnabled, of: $0)
+                && booleanProperty(kTISPropertyInputSourceIsSelectCapable, of: $0)
+        }) else {
+            return false
+        }
+        return TISSelectInputSource(source) == noErr
+    }
+
     private func allKeyboardSources() -> [TISInputSource] {
         let conditions = [
             kTISPropertyInputSourceCategory: kTISCategoryKeyboardInputSource,

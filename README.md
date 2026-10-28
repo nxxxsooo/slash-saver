@@ -18,7 +18,9 @@
 
 Slash Saver listens for one physical key and performs one action: when the ANSI slash key is pressed, it selects the ASCII input source you configured. The original key event continues untouched, so `/` or `?` is still typed normally.
 
-It never switches back automatically, records typed characters, inspects the active application, or posts synthetic keyboard events.
+It never switches back on its own, records typed characters, inspects the active application, or posts synthetic keyboard events.
+
+Optionally, **Esc** can switch too. Leaving text entry with Esc is where terminal and modal-editor shortcuts follow: single letters such as `q`, `e`, or `o` that a Chinese input method would otherwise hold as pinyin.
 
 ## Why Slash
 
@@ -59,7 +61,7 @@ If the keyboard rule stops after an update, remove Slash Saver from **System Set
 ## Privacy and Security
 
 - Requests Input Monitoring only so a passive `CGEventTap` can observe physical key-down events.
-- Watches only `keyDown` and acts only on physical key code `kVK_ANSI_Slash` (`44`).
+- Watches only `keyDown` and acts only on physical key code `kVK_ANSI_Slash` (`44`), plus `kVK_Escape` (`53`) when **Esc 键也切换** is enabled.
 - Immediately ignores non-slash key metadata and does not record characters, application names, documents, or input history.
 - Does not send analytics or make network requests.
 - Returns the original event and never synthesizes replacement keyboard events.
@@ -75,6 +77,19 @@ If the keyboard rule stops after an update, remove Slash Saver from **System Set
 - Resolves and retains the target source before monitoring starts.
 - Calls `TISSelectInputSource` inside the passive event-tap callback before returning the original slash event.
 - Slash-event handling never activates another application, creates a temporary focus window, or changes focus.
+
+## Command Line
+
+The same binary switches input sources for terminal tools, without starting the app or its key monitor:
+
+```sh
+SS="/Applications/Slash Saver.app/Contents/MacOS/SlashSaver"
+"$SS" input-source current          # print the current input source ID
+prev=$("$SS" input-source ascii)    # select the configured ASCII source, print the previous one
+"$SS" input-source select "$prev"   # select any enabled input source
+```
+
+[opencode-annotate](https://github.com/nxxxsooo/opencode-annotate) uses this to keep review and permission shortcuts in ASCII and restore your input method afterwards.
 
 ## Requirements
 
@@ -105,10 +120,12 @@ Slash Saver 是一个极小的原生 macOS 工具。按下物理 `/` 键时，�
 
 首次运行时，从系统当前启用的输入源列表里选择目标输入源，并授予「输入监控」权限。它没有 Dock 图标和菜单栏图标；再次打开应用即可进入设置。
 
-它只观察按键按下事件，不记录字符、应用名、文档或输入历史，不联网，不模拟按键，也不会自动切回中文输入法。当前发布包已使用 Apple Development 证书签名，但尚未经过 Apple 公证；首次打开可能需要右键应用并选择「打开」。
+可选开启「Esc 键也切换」：在终端或模态编辑器里按 Esc 离开输入后，`q`、`e`、`o` 这类单字母快捷键不会再被拼音吞掉。命令行 `SlashSaver input-source current|ascii|select <id>` 供终端工具切换并恢复输入源。
+
+它只观察按键按下事件，不记录字符、应用名、文档或输入历史，不联网，不模拟按键，也不会自行切回中文输入法。当前发布包已使用 Apple Development 证书签名，但尚未经过 Apple 公证；首次打开可能需要右键应用并选择「打开」。
 
 ## Known Limitations
 
-- The trigger is the physical ANSI slash key, not a character produced by an alternate keyboard layout.
+- The triggers are physical keys (ANSI slash, optionally Escape), not a character produced by an alternate keyboard layout.
 - Input-source behavior is ultimately provided by macOS Text Input Source Services and may vary with third-party input methods.
 - The downloadable build is not notarized, so first-launch Gatekeeper handling is expected.

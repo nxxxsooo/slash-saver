@@ -2,6 +2,14 @@
 
 ## Changelog
 
+### 2026-10-28
+
+- **feat**: Released Slash Saver v1.1.0 with an optional Esc trigger and `SlashSaver input-source current|ascii|select <id>`.
+  - why: a Chinese input method swallows single-letter shortcuts after leaving text entry (terminal, OpenCode permission prompts, Plannotator review keys); opencode-annotate 0.9.0 drives the command line to switch to ASCII and restore the previous source.
+  - verified: 12 Swift tests, GitHub CI on `8958740`, universal `arm64 + x86_64` Release build, Apple Development signature with hardened runtime, downloaded asset SHA-256, signature valid after both `unzip` and `ditto` extraction, CLI round trip ABC ↔ Doubao Pinyin, installed app keeps Input Monitoring.
+  - note: the first upload embedded AppleDouble `._` files, which break the signature under plain `unzip`; package with `ditto -c -k --norsrc --noextattr --noacl --keepParent`.
+  - refs: tag and release `v1.1.0`; `https://github.com/nxxxsooo/slash-saver/releases/tag/v1.1.0`
+
 ### 2026-07-22
 
 - **feat**: Released Slash Saver v1.0.1 with a calmer emerald-and-lime identity, a polished native settings panel, and a product story centered on slash-triggered input friction.
